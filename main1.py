@@ -1,6 +1,22 @@
 
 import skills
 
+
+class SkillType:
+    # 적군 하나 대상
+    type_1 = ['smite', '', '']
+
+    # 아군 하나 대상
+    type_2 = ['heal']
+
+    @classmethod
+    def get_type(cls, skill_name):
+        if skill_name in SkillType.type_1:
+            return "type1"
+        elif skill_name in SkillType.type_2:
+            return "type2"
+
+
 class RpgChararcter:
 
     def __init__(self, name,  hp, atk):
@@ -25,10 +41,13 @@ class RpgChararcter:
 
         return self.hp
 
-    def heal(self, heal_value):
+    # caster.get_name(), skill_damage, "heal"
+    def heal_system(self, caster_name, heal_value):
         self.hp += heal_value
         if self.hp > self.max_hp:
             self.hp = self.max_hp
+
+        print("{} is recovered by {}. Now hp is {}.".format(self.get_name(), heal_value, self.get_hp()))
 
     def be_attacked(self, attacker_name, damaged_value, skill_name="attack"):
         if not self.alive:
@@ -45,10 +64,11 @@ class RpgChararcter:
         name = self.get_name()
 
         if skill_name == "attack":
-            rtn_str = "{} hits {}. {} is damaged by {}".format(attacker_name, name, name, damaged_value)
+            rtn_str = "{} hits {}.".format(attacker_name, name)
         else:
-            rtn_str = "{} use {} to {}. {} is damaged by {}".format(attacker_name, skill_name, name, name, damaged_value)
+            rtn_str = "{} use {} to {}.".format(attacker_name, skill_name, name)
 
+        rtn_str += " {} is damaged by {}. Now hp is {}.".format(name, damaged_value, self.get_hp())
         print(rtn_str)
 
     def is_alive(self):
@@ -106,22 +126,31 @@ class GM:
         GM.user_team = my_party
         GM.enemies = enemies
 
+    @classmethod
+    def pickone(cls, team):
+
+        if team == GM.enemies:
+            title = "Targets:"
+        else:
+            title = "Members:"
+
+        team.pickone_members(title)
+
+        a = input("> ")
+        choose_one_index = int(a) - 1
+
+        return team.characters[choose_one_index]
+
     # 적군중 한명을 공격하고자 고른다.
     @classmethod
     def pickone_enemy(cls):
 
-        alist = []
-        for i, one in enumerate(GM.enemies.characters):
-            astr = "({}) {}".format(i+1, one.get_name())
-            alist.append(astr)
+        return GM.pickone(GM.enemies)
 
-        print("Targets: " + " ".join(alist))
-        a = input("> ")
+    @classmethod
+    def pickone_member(cls):
 
-        choose_one_index = int(a) - 1
-
-        return GM.enemies.characters[choose_one_index]
-
+        return GM.pickone(GM.user_team)
 
     @classmethod
     def fight(cls, attacker, attacked):
@@ -170,9 +199,16 @@ class GM:
                     sk = attacker.choose_skill()
                     available_skills = attacker.get_skills()
 
-                    target = GM.pickone_enemy()
-
                     skill_name = available_skills[sk - 1]
+
+                    sk_type = SkillType.get_type(skill_name)
+
+                    # 적군 대상
+                    if sk_type == 'type1':
+                        target = GM.pickone_enemy()
+                    elif sk_type == 'type2':
+                        target = GM.pickone_member()
+
                     skill_method = getattr(skills, skill_name)
                     skill_method(attacker, target)
 
@@ -208,13 +244,13 @@ class Team:
             i += 1
             print("({}) {}: hp: {}. atk: {}".format(i, one.get_name(), one.get_hp(), one.get_atk()))
 
-    # 뭔가 하기 위해 우리팀에서 한명을 고르자.
+    # 뭔가 하기 위해 팀에서 한명을 고르자.
     def pickone_members(self, title):
 
         print(title)
 
         for i, one in enumerate(self.characters):
-            print("({}) {}: hp: {}. atk: {}".format(i+1, one.get_name(), one.get_hp(), one.get_atk()))
+            print("({}) name: {}, hp: {}. atk: {}".format(i+1, one.get_name(), one.get_hp(), one.get_atk()))
 
 
 def main():
@@ -224,4 +260,7 @@ def main():
 
 main()
 
-# next?
+# next: item구현
+# equipment를 우선적으로 구현한다.
+# 장비의 종류는 크게 무기, 방어구,장신구로 나뉜다.
+# 먼저 atk+10d의 도검과 atk+20의 도끼를 만들어 장착해본다.

@@ -9,7 +9,8 @@ def smite(caster, target):
     target.be_attacked(caster.get_name(), skill_damage, "smite")
 
 
+
 # 치유: hp 회복
 def heal(caster, target):
     skill_damage = caster.get_atk()
-    target.be_attacked(caster.get_name(), skill_damage, "smite")
+    target.heal_system(caster.get_name(), skill_damage)
