@@ -22,6 +22,7 @@ class RpgChararcter:
         self.alive = True
         self.max_hp = hp
         self.skills = ['heal', 'smite', 'smash']
+        self.party = None
 
     def get_name(self):
         return self.name
@@ -92,10 +93,15 @@ class RpgChararcter:
             if selected_value and 0 < selected_value <= max_index:
                 return selected_value
 
+    def belong(self, party):
+        self.party = party
 
     def die(self):
         self.alive = False
         print("{} is dead".format(self.get_name()))
+
+        # team에 죽음을 알리자.
+        self.party.die_member(self)
 
 
 class GM:
@@ -249,6 +255,7 @@ class Team:
 
         self.characters.append(member)
         self.lives = len(self.characters)
+        member.belong(self)
 
        #print(self.lives)
 
@@ -269,6 +276,17 @@ class Team:
 
         for i, one in enumerate(self.characters):
             print("({}) name: {}, hp: {}. atk: {}".format(i+1, one.get_name(), one.get_hp(), one.get_atk()))
+
+    # chracter가 죽을 때 team에 자기의 죽음을 알린다.
+    def die_member(self, a_characer):
+
+        self.characters.remove(a_characer)
+        self.lives = len(self.characters)
+
+        # 전멸
+        # TODO: 전멸 처리
+        if self.lives == 0:
+            pass
 
 
 def main():
