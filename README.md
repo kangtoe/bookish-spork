@@ -1,1 +1,1 @@
-"# rpg_text" 
+# rpg_text

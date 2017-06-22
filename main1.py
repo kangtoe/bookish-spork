@@ -2,19 +2,15 @@
 import skills
 
 
-class SkillType:
-    # 적군 하나 대상
-    type_1 = ['smite', '', '']
+# 타입핑된 값에서 안전하게 숫자 추출
+def safe_to_int(a_type_value):
 
-    # 아군 하나 대상
-    type_2 = ['heal']
+    try:
+        rtn_int = int(a_type_value)
+    except ValueError:
+        return None
 
-    @classmethod
-    def get_type(cls, skill_name):
-        if skill_name in SkillType.type_1:
-            return "type1"
-        elif skill_name in SkillType.type_2:
-            return "type2"
+    return rtn_int
 
 
 class RpgChararcter:
@@ -25,7 +21,7 @@ class RpgChararcter:
         self.atk = atk
         self.alive = True
         self.max_hp = hp
-        self.skills = ['heal', 'smite']
+        self.skills = ['heal', 'smite', 'smash']
 
     def get_name(self):
         return self.name
@@ -84,11 +80,18 @@ class RpgChararcter:
             a_str = "({}) {}".format(i+1, one_skill)
             str_skills.append(a_str)
 
-        print("Use : " + " ".join(str_skills))
+        max_index = len(self.get_skills())
 
-        sk = input("> ")
+        while True:
+            print("Use : " + " ".join(str_skills))
 
-        return int(sk)
+            sk = input("> ")
+
+            # sk값이 index에 합당한지 검사하자.
+            selected_value = safe_to_int(sk)
+            if selected_value and 0 < selected_value <= max_index:
+                return selected_value
+
 
     def die(self):
         self.alive = False
@@ -134,12 +137,16 @@ class GM:
         else:
             title = "Members:"
 
-        team.pickone_members(title)
+        max_team_member = team.lives
+        while True:
+            team.pickone_members(title)
 
-        a = input("> ")
-        choose_one_index = int(a) - 1
+            a = input("> ")
 
-        return team.characters[choose_one_index]
+            a_value = safe_to_int(a)
+
+            if a_value and 0 < a_value <= max_team_member:
+                return team.characters[a_value-1]
 
     # 적군중 한명을 공격하고자 고른다.
     @classmethod
@@ -153,7 +160,7 @@ class GM:
         return GM.pickone(GM.user_team)
 
     @classmethod
-    def fight(cls, attacker, attacked):
+    def fight(cls, attacker, target):
 
         # 살아 있는지 검사
         # TODO: 죽으면 공격 대상에서 제외.
@@ -161,8 +168,8 @@ class GM:
             return
 
         attacker_atk = attacker.get_atk()
-        attacked.be_attacked(attacker.get_name(), attacker_atk)
-        attacked.get_hp()
+        target.be_attacked(attacker.get_name(), attacker_atk)
+        target.get_hp()
 
 
     @classmethod
@@ -173,44 +180,55 @@ class GM:
 
         while True:
 
-            # TODO: 바른 답변인지 검증 필요.
             print("\n{} Turn: Now is your turn. (battle=1, retreat=2):".format(GM.turn))
             a = input("> ")
             if a == '1':
                 GM.turn += 1
 
-                GM.user_team.pickone_members("Member to act: ")
-                ask_str = "> "
+                max_member = GM.user_team.lives
+                while True:
+                    GM.user_team.pickone_members("Member to act: ")
+                    ask_str = "> "
 
-                result = input(ask_str)
-                choice_index = int(result)
+                    result = input(ask_str)
+                    choice_value = safe_to_int(result)
 
-                # TODO: 바른 답변인지 검증 필요.
+                    if choice_value and 0 < choice_value <= max_member:
+                        break
 
                 # 누가 싸우나?
-                attacker = GM.user_team.characters[choice_index-1]
+                attacker = GM.user_team.characters[choice_value-1]
 
-                # 뭐 할지 물어보자.
-                print("{} act: (attack='a', skill='s')".format(attacker.get_name()))
-                choice_act = input("> ")
 
-                if choice_act == 's':
+                while True:
+                    # 뭐 할지 물어보자.
+                    print("{} act: (attack='a', skill='s')".format(attacker.get_name()))
+                    choice_act = input("> ")
 
-                    sk = attacker.choose_skill()
-                    available_skills = attacker.get_skills()
+                    # skill
+                    if choice_act == 's':
 
-                    skill_name = available_skills[sk - 1]
+                        sk = attacker.choose_skill()
+                        available_skills = attacker.get_skills()
 
-                    sk_type = SkillType.get_type(skill_name)
+                        skill_name = available_skills[sk - 1]
 
-                    # 적군 대상
-                    if sk_type == 'type1':
+                        sk_type = skills.SkillType.get_type(skill_name)
+
+                        # 적군 대상
+                        if sk_type == 'type1':
+                            target = GM.pickone_enemy()
+                        elif sk_type == 'type2':
+                            target = GM.pickone_member()
+
+                        skill_method = getattr(skills, skill_name)
+                        skill_method(attacker, target)
+                        break
+                    # attack
+                    elif choice_act == 'a':
                         target = GM.pickone_enemy()
-                    elif sk_type == 'type2':
-                        target = GM.pickone_member()
-
-                    skill_method = getattr(skills, skill_name)
-                    skill_method(attacker, target)
+                        GM.fight(attacker, target)
+                        break
 
             elif a == '2':
                 print('you retreated')
