@@ -1,5 +1,8 @@
 
 import skills
+import items
+import equipment
+import inventory
 
 
 # 타입핑된 값에서 안전하게 숫자 추출
@@ -12,7 +15,6 @@ def safe_to_int(a_type_value):
 
     return rtn_int
 
-
 class RpgChararcter:
 
     def __init__(self, name,  hp, atk):
@@ -23,6 +25,28 @@ class RpgChararcter:
         self.max_hp = hp
         self.skills = ['heal', 'smite', 'smash']
         self.party = None
+        self.equipment = equipment.Equipment()
+
+        self.recalc_attr()
+
+    # Equipment에 의해 attribute의 재평가
+    def recalc_attr(self):
+        for a_place in equipment.Equipment.place:
+
+            if self.equipment.place[a_place]:
+                my_equip = self.equipment.place[a_place]
+
+                for a in my_equip.attr_list:
+                    self.set_attr(a)
+
+    # attr_str을 받아서 캐릭터의 atk와 hp를 조정한다.
+    # ex) "atk:+10" -> "atk" 10 증가
+    def set_attr(self, attr_str):
+        (attr_name, attr_value) = items.get_attr(attr_str)
+        if attr_name == "atk":
+            self.atk += attr_value
+        elif attr_name == "hp":
+            self.hp += attr_value
 
     def get_name(self):
         return self.name
@@ -286,7 +310,7 @@ class Team:
         # 전멸
         # TODO: 전멸 처리
         if self.lives == 0:
-            pass
+            print("You Lose!")
 
 
 def main():

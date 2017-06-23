@@ -31,7 +31,6 @@ def smash(caster, target):
     target.be_attacked(caster.get_name(), skill_damage, "smash")
 
 
-
 # 치유: hp 회복
 def heal(caster, target):
     skill_damage = caster.get_atk()
