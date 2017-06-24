@@ -231,7 +231,6 @@ class GM:
             elif a == '3':
                 GM.menu_inventory()
 
-
             else:
                 pass
 
@@ -287,6 +286,44 @@ class GM:
     def menu_inventory(cls):
         GM.user_team.show_inventory()
 
+        # 먼저 inventory가 비어 있는지 검사하자.
+        if GM.user_team.inventory.is_empty():
+            return
+
+        while True:
+            print("Choose an item: ")
+            a = input("> ")
+
+            a_int = safe_to_int(a)
+
+            if a_int is None:
+                continue
+
+            a_index = a_int - 1
+            max_index = len(GM.user_team.inventory.items)
+            if 0 <= a_index < max_index:
+                break
+
+        # 정보를 보여주고 장착/삭제 등을 선택하게 한다.
+        while True:
+            # 아이템 정보를 자세히 보여준다.
+            GM.user_team.inventory.get_info(a_index)
+
+            print("(equip=1, use=2, discard=3)")
+            a = input("> ")
+
+            if a == '1':
+
+                # 누구에게 equip 할지 골라야 된다.
+                break
+            elif a == '2':
+                # 누구에게 use 할지 골라야 된다
+                break
+            elif a == '3':
+                GM.user_team.inventory.discard(a_index)
+                break
+            else:
+                pass
 
 class Team:
 

@@ -2,16 +2,18 @@
 
 class Item:
 
-    def __init__(self, item_type, item_name, attribute, a_value):
+    def __init__(self, item_type, item_name, attribute, a_value, desc=""):
         self.item_type = None
         self.item_name = None
         self.attr_list = []
         self.count = 0
-        self.make(item_type, item_name, attribute, a_value)
+        self.desc = desc
+        self.make(item_type, item_name, attribute, a_value, desc)
 
-    def make(self, item_type, item_name, attribute, a_value):
+    def make(self, item_type, item_name, attribute, a_value, desc):
         self.item_type = item_type
         self.item_name = item_name
+        self.desc = desc
 
         attr_str = attribute + ":" + "{0:+}".format(a_value,)
 
