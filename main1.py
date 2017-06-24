@@ -26,6 +26,7 @@ class RpgChararcter:
         self.skills = ['heal', 'smite', 'smash']
         self.party = None
         self.equipment = equipment.Equipment()
+        self.inventory = None
 
         self.recalc_attr()
 
@@ -120,6 +121,10 @@ class RpgChararcter:
     def belong(self, party):
         self.party = party
 
+    # Team의 Inventory를 연결한다.
+    def link_inventory(self, party):
+        self.inventory = party.inventory
+
     def die(self):
         self.alive = False
         print("{} is dead".format(self.get_name()))
@@ -210,62 +215,77 @@ class GM:
 
         while True:
 
-            print("\n{} Turn: Now is your turn. (battle=1, retreat=2):".format(GM.turn))
+            print("\n{} Turn: Now is your turn. (battle=1, retreat=2, inventory=3):".format(GM.turn))
             a = input("> ")
+
+            # battle 선택
             if a == '1':
-                GM.turn += 1
+                GM.menu_battle()
 
-                max_member = GM.user_team.lives
-                while True:
-                    GM.user_team.pickone_members("Member to act: ")
-                    ask_str = "> "
-
-                    result = input(ask_str)
-                    choice_value = safe_to_int(result)
-
-                    if choice_value and 0 < choice_value <= max_member:
-                        break
-
-                # 누가 싸우나?
-                attacker = GM.user_team.characters[choice_value-1]
-
-
-                while True:
-                    # 뭐 할지 물어보자.
-                    print("{} act: (attack='a', skill='s')".format(attacker.get_name()))
-                    choice_act = input("> ")
-
-                    # skill
-                    if choice_act == 's':
-
-                        sk = attacker.choose_skill()
-                        available_skills = attacker.get_skills()
-
-                        skill_name = available_skills[sk - 1]
-
-                        sk_type = skills.SkillType.get_type(skill_name)
-
-                        # 적군 대상
-                        if sk_type == 'type1':
-                            target = GM.pickone_enemy()
-                        elif sk_type == 'type2':
-                            target = GM.pickone_member()
-
-                        skill_method = getattr(skills, skill_name)
-                        skill_method(attacker, target)
-                        break
-                    # attack
-                    elif choice_act == 'a':
-                        target = GM.pickone_enemy()
-                        GM.fight(attacker, target)
-                        break
-
+            # retreat 선택
             elif a == '2':
                 print('you retreated')
                 break
 
+            # Inventory 메뉴 선택
+            elif a == '3':
+                GM.menu_inventory()
+
+
             else:
                 pass
+
+    @classmethod
+    def menu_battle(cls):
+        GM.turn += 1
+
+        max_member = GM.user_team.lives
+        while True:
+            GM.user_team.pickone_members("Member to act: ")
+            ask_str = "> "
+
+            result = input(ask_str)
+            choice_value = safe_to_int(result)
+
+            if choice_value and 0 < choice_value <= max_member:
+                break
+
+        # 누가 싸우나?
+        attacker = GM.user_team.characters[choice_value - 1]
+
+        while True:
+            # 뭐 할지 물어보자.
+            print("{} act: (attack='a', skill='s')".format(attacker.get_name()))
+            choice_act = input("> ")
+
+            # skill
+            if choice_act == 's':
+
+                sk = attacker.choose_skill()
+                available_skills = attacker.get_skills()
+
+                skill_name = available_skills[sk - 1]
+
+                sk_type = skills.SkillType.get_type(skill_name)
+
+                # 적군 대상
+                if sk_type == 'type1':
+                    target = GM.pickone_enemy()
+                elif sk_type == 'type2':
+                    target = GM.pickone_member()
+
+                skill_method = getattr(skills, skill_name)
+                skill_method(attacker, target)
+                break
+            # attack
+            elif choice_act == 'a':
+                target = GM.pickone_enemy()
+                GM.fight(attacker, target)
+                break
+
+    @classmethod
+    def menu_inventory(cls):
+        GM.user_team.show_inventory()
 
 
 class Team:
@@ -274,6 +294,7 @@ class Team:
 
         self.characters = []
         self.lives = 0
+        self.inventory = inventory.Inventory()
 
     def add(self, member):
 
@@ -312,6 +333,8 @@ class Team:
         if self.lives == 0:
             print("You Lose!")
 
+    def show_inventory(self):
+        self.inventory.show_list()
 
 def main():
 
@@ -320,7 +343,5 @@ def main():
 
 main()
 
-# next: item구현
-# equipment를 우선적으로 구현한다.
-# 장비의 종류는 크게 무기, 방어구,장신구로 나뉜다.
+
 # 먼저 atk+10d의 도검과 atk+20의 도끼를 만들어 장착해본다.

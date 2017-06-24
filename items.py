@@ -2,11 +2,12 @@
 
 class Item:
 
-    def __init__(self):
+    def __init__(self, item_type, item_name, attribute, a_value):
         self.item_type = None
         self.item_name = None
         self.attr_list = []
         self.count = 0
+        self.make(item_type, item_name, attribute, a_value)
 
     def make(self, item_type, item_name, attribute, a_value):
         self.item_type = item_type
@@ -35,12 +36,23 @@ def get_attr(attr_str):
 
 
 def make_basic_item(item_type):
-    an_item = Item()
+
     if item_type == 'weapon':
-        an_item.make("weapon", "fist", "atk", 1)
+        an_item = Item("weapon", "fist", "atk", 1)
 
     elif item_type == "armor":
-        an_item.make("armor", "cloth", "hp", 2)
+        an_item = Item("armor", "underwear", "hp", 2)
+
+    return an_item
+
+
+def make_test_item(item_type):
+
+    if item_type == 'weapon':
+        an_item = Item("weapon", "knife", "atk", 10)
+
+    elif item_type == "armor":
+        an_item = Item("armor", "cloth", "hp", 5)
 
     return an_item
 
