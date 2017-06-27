@@ -30,6 +30,20 @@ class RpgChararcter:
 
         self.recalc_attr()
 
+    def __str__(self):
+        return "{}, hp:{}/{}, atk:{} equip:[{}]".format(self.name, self.hp, self.max_hp, self.atk, self.equipment)
+
+    #def __repr__(self):
+    #    print("{}, hp:{}/{}, atk:{}".format(self.name, self.hp, self.max_hp, self.atk))
+
+    # 장비를 장착한다.
+    def equip(self, a_item):
+        self.equipment.equip(a_item, self.inventory)
+        self.recalc_attr()
+
+    def unequip(self, a_place):
+        self.equipment.unequip(a_place, self.inventory)
+
     # Equipment에 의해 attribute의 재평가
     def recalc_attr(self):
         for a_place in equipment.Equipment.place:
@@ -118,8 +132,10 @@ class RpgChararcter:
             if selected_value and 0 < selected_value <= max_index:
                 return selected_value
 
+    # 소속 및 Team의 요소에 연결할 내용이 있다면 여기서 하자.
     def belong(self, party):
         self.party = party
+        self.link_inventory(self.party)
 
     # Team의 Inventory를 연결한다.
     def link_inventory(self, party):
@@ -307,14 +323,23 @@ class GM:
         # 정보를 보여주고 장착/삭제 등을 선택하게 한다.
         while True:
             # 아이템 정보를 자세히 보여준다.
-            GM.user_team.inventory.get_info(a_index)
+            a_item = GM.user_team.inventory.get_info(a_index)
 
             print("(equip=1, use=2, discard=3)")
             a = input("> ")
 
             if a == '1':
 
+                my_team = GM.user_team
+                my_inventory = my_team.inventory
+
                 # 누구에게 equip 할지 골라야 된다.
+                a_char = GM.pickone(my_team)
+                my_equipment = a_char.equipment
+
+                a_char.equip(a_item)
+
+                print(a_char)
                 break
             elif a == '2':
                 # 누구에게 use 할지 골라야 된다
@@ -337,6 +362,9 @@ class Team:
 
         self.characters.append(member)
         self.lives = len(self.characters)
+
+        # 연결이 필요한 요소들을 연결시킨다.
+        # ex) 해당 inventory 연결, 팀하고 캐릭터를 연결
         member.belong(self)
 
        #print(self.lives)
@@ -349,7 +377,7 @@ class Team:
         i = 0
         for one in self.characters:
             i += 1
-            print("({}) {}: hp: {}. atk: {}".format(i, one.get_name(), one.get_hp(), one.get_atk()))
+            print("({}) {}: hp: {}. atk: {}, equip:[{}]".format(i, one.get_name(), one.get_hp(), one.get_atk(), one.equipment))
 
     # 뭔가 하기 위해 팀에서 한명을 고르자.
     def pickone_members(self, title):
@@ -357,7 +385,7 @@ class Team:
         print(title)
 
         for i, one in enumerate(self.characters):
-            print("({}) name: {}, hp: {}. atk: {}".format(i+1, one.get_name(), one.get_hp(), one.get_atk()))
+            print("({}) name: {}, hp: {}. atk: {}, equip:[{}]".format(i+1, one.get_name(), one.get_hp(), one.get_atk(), one.equipment))
 
     # chracter가 죽을 때 team에 자기의 죽음을 알린다.
     def die_member(self, a_characer):

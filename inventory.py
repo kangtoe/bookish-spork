@@ -26,9 +26,11 @@ class Inventory:
         attr_str = " ".join(a_item.attr_list)
         print("name: {} , attrs: {}".format(a_item.item_name, attr_str))
 
+        return a_item
+
     # 꺼내다.
-    def takeout(self):
-        pass
+    def takeout(self, a_item):
+        self.items.remove(a_item)
 
     # 아이템을 삭제한다.
     def discard(self, item_index):

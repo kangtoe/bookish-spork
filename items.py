@@ -28,6 +28,9 @@ class Item:
         for one in self.attr_list:
             print(one)
 
+    def __str__(self):
+        return "{}".format(self.item_name)
+
 
 def get_attr(attr_str):
     attr_list = attr_str.split(':')
@@ -40,10 +43,10 @@ def get_attr(attr_str):
 def make_basic_item(item_type):
 
     if item_type == 'weapon':
-        an_item = Item("weapon", "fist", "atk", 1)
+        an_item = Item("weapon", "(none)", "atk", 0)
 
     elif item_type == "armor":
-        an_item = Item("armor", "underwear", "hp", 2)
+        an_item = Item("armor", "(none)", "hp", 0)
 
     return an_item
 
