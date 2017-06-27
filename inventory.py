@@ -6,9 +6,9 @@ class Inventory:
         self.items = []
         self.max_item_count = 32
 
-        for i in range(1):
+        for i in range(3):
             self.putin(items.make_test_item("weapon"))
-            #self.putin(items.make_test_item("armor"))
+            self.putin(items.make_test_item("armor"))
 
     # 집어 넣다.
     def putin(self, a_item):

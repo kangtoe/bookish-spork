@@ -30,6 +30,12 @@ class Equipment:
         if a_item.item_name != "(none)":
             a_inventory.put_in(a_item)
 
+    def show_equipment(self):
+
+        for i, a_place in enumerate(Equipment.place):
+            print("({}) {}: {}".format(i+1, a_place, self.place[a_place]))
+
+
     def __str__(self):
         return "weapon:{}, armor:{}".format(self.place['weapon'], self.place['armor'])
 

@@ -61,7 +61,7 @@ class RpgChararcter:
         if attr_name == "atk":
             self.atk += attr_value
         elif attr_name == "hp":
-            self.hp += attr_value
+            self.max_hp += attr_value
 
     def get_name(self):
         return self.name
@@ -231,7 +231,7 @@ class GM:
 
         while True:
 
-            print("\n{} Turn: Now is your turn. (battle=1, retreat=2, inventory=3):".format(GM.turn))
+            print("\n{} Turn: Now is your turn. (battle=1, retreat=2, inventory=3, character=4):".format(GM.turn))
             a = input("> ")
 
             # battle 선택
@@ -246,6 +246,10 @@ class GM:
             # Inventory 메뉴 선택
             elif a == '3':
                 GM.menu_inventory()
+
+            # Character 메뉴 선택
+            elif a == '4':
+                GM.menu_chracter()
 
             else:
                 pass
@@ -350,6 +354,80 @@ class GM:
             else:
                 pass
 
+    @classmethod
+    def menu_chracter(cls):
+
+        while True:
+            GM.user_team.pickone_members("Member to manage: ")
+            ask_str = "> "
+
+            result = input(ask_str)
+            choice_value = safe_to_int(result)
+            max_member = GM.user_team.lives
+
+            if choice_value and 0 < choice_value <= max_member:
+                break
+
+        # 선택된 캐릭터
+        a_man = GM.user_team.characters[choice_value - 1]
+
+        # 정보를 보여주고 장착/삭제 등을 선택하게 한다.
+        while True:
+            # Equipment 정보를 보여준다.
+            a_man.equipment.show_equipment()
+
+            ask_str = "> "
+
+            result = input(ask_str)
+
+            int_result = safe_to_int(result)
+
+            max_result = len(a_man.equipment.place)
+            if choice_value and 0 < int_result <= max_result:
+                break
+
+        safe_to_int(result)
+
+        equip_place_index = int_result-1
+        a_place = equipment.Equipment.place[equip_place_index]
+        a_item = a_man.equipment.place[a_place]
+        #
+        print("Item to manage: {}".format(a_item.item_name))
+
+        while True:
+            print("(change=1, unequip=2, discard=3):")
+            ask_str = "> "
+
+            result = input(ask_str)
+
+            # change
+            if result == '1':
+
+                # TODO: Inventory에서 같은 유형만 보여준다.
+                break
+            # unequip
+            elif result == '2':
+                pass
+                break
+
+            # discard
+            elif result == '3':
+                pass
+                break
+
+            else:
+                pass
+
+
+    @classmethod
+    def menu_character_equip(cls):
+
+        while True:
+
+            if True:
+                pass
+
+
 class Team:
 
     def __init__(self):
@@ -377,7 +455,8 @@ class Team:
         i = 0
         for one in self.characters:
             i += 1
-            print("({}) {}: hp: {}. atk: {}, equip:[{}]".format(i, one.get_name(), one.get_hp(), one.get_atk(), one.equipment))
+            print("({}) {}: hp:{}/{}, atk:{}, equip:[{}]".format(
+                i, one.get_name(), one.get_hp(), one.max_hp, one.get_atk(), one.equipment))
 
     # 뭔가 하기 위해 팀에서 한명을 고르자.
     def pickone_members(self, title):
@@ -385,7 +464,8 @@ class Team:
         print(title)
 
         for i, one in enumerate(self.characters):
-            print("({}) name: {}, hp: {}. atk: {}, equip:[{}]".format(i+1, one.get_name(), one.get_hp(), one.get_atk(), one.equipment))
+            print("({}) name:{}, hp:{}/{}, atk:{}, equip:[{}]".format(
+                i+1, one.get_name(), one.get_hp(), one.max_hp, one.get_atk(), one.equipment))
 
     # chracter가 죽을 때 team에 자기의 죽음을 알린다.
     def die_member(self, a_characer):

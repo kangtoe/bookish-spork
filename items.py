@@ -1,3 +1,4 @@
+import random
 
 
 class Item:
@@ -53,11 +54,25 @@ def make_basic_item(item_type):
 
 def make_test_item(item_type):
 
+    weapons = [
+        Item("weapon", "knife", "atk", 10),
+        Item("weapon", "axe", "atk", 20),
+        Item("weapon", "sword", "atk", 15)
+    ]
+
+    armors = [
+        Item("armor", "cloth", "hp", 5),
+        Item("armor", "leather", "hp", 10),
+        Item("armor", "chain mail", "hp", 20)
+    ]
+
     if item_type == 'weapon':
-        an_item = Item("weapon", "knife", "atk", 10)
+        random.shuffle(weapons)
+        an_item = weapons[0]
 
     elif item_type == "armor":
-        an_item = Item("armor", "cloth", "hp", 5)
+        random.shuffle(armors)
+        an_item = armors[0]
 
     return an_item
 
